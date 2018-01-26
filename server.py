@@ -4,6 +4,7 @@ from flask_restful import Resource, Api
 from sqlalchemy import create_engine
 import json
 import urllib2
+import random
 
 db_connect = create_engine('sqlite:///chinook.db')
 app = Flask(__name__)
@@ -11,6 +12,24 @@ api = Api(app)
 GOOGLE = 'AIzaSyBiNfMAYS471tn8hxoNkoaK-dZAfYyU1Gs'
 
 class NearBy(Resource):
+    def cleanMe(self,data,meds):
+        answer = []
+        y = []
+        for k in data['results']:
+            yb = {}
+            yb['name'] = k['name']
+            yb['location'] = k['geometry']['location']
+            y.append(yb)
+        for m in meds:
+            rN = random.randint(0,len(y)-1)
+            medData = {}
+            medData['name'] = m['name']
+            medData['medId'] = m['medId']
+            medData['locations'] = y[0:rN]
+            medData['locations'].extend(y[rN:len(y)])
+            answer.append(medData)            
+
+
     def post(self):
         print(request.json)
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
