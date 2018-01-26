@@ -9,6 +9,17 @@ db_connect = create_engine('sqlite:///chinook.db')
 app = Flask(__name__)
 api = Api(app)
 
+class Substitute(Resource):
+    def post(self):
+        print(request.json)
+        medId = request.json['medId']
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+        uri = "http://www.truemd.in/api/v2/medicines/"+medId+"/alternatives.json"
+        req = urllib2.Request(uri, None, headers)
+        data = urllib2.urlopen(req)
+        data = json.load(data)
+        return jsonify(data)
+
 class KeywordSearch(Resource):
     # Get Not needed
     def get(self):
