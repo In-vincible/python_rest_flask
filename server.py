@@ -10,15 +10,22 @@ app = Flask(__name__)
 api = Api(app)
 
 class Substitute(Resource):
+    def cleanMe(self,data):
+        cleaned_data = []
+        for i in data["alternatives"]:
+            cleaned_data.append( { "name":i["name"], "mrp":i["mrp"], "size":i["size"], "manufacturer":i["manufacturer"] } )
+        return cleaned_data
+
     def post(self):
         print(request.json)
-        medId = request.json['medId']
+        mdCode = request.json['mdCode']
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-        uri = "http://www.truemd.in/api/v2/medicines/"+medId+"/alternatives.json"
+        uri = "http://www.truemd.in/api/v2/medicines/"+mdCode+"/alternatives.json"
         req = urllib2.Request(uri, None, headers)
         data = urllib2.urlopen(req)
         data = json.load(data)
-        return jsonify(data)
+        cleaned_data = self.cleanMe(data)
+        return jsonify(cleaned_data)
 
 class KeywordSearch(Resource):
     # Get Not needed
