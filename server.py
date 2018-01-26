@@ -96,4 +96,4 @@ api.add_resource(Employees_Name, '/employees/<employee_id>') # Route_3
 api.add_resource(Substitute, '/substitute') 
 
 if __name__ == '__main__':
-     app.run()
+     app.run(debug=True)
