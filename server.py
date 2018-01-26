@@ -2,11 +2,31 @@
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
-from json import dumps
+import json
+import urllib2
 
 db_connect = create_engine('sqlite:///chinook.db')
 app = Flask(__name__)
 api = Api(app)
+
+class KeywordSearch(Resource):
+    # Get Not needed
+    def get(self):
+        keywd="cro"  #get keyword from json request  request.json["mdCode"]
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+        req = urllib2.Request('http://www.truemd.in/api/v2/medicines.json?search='+keywd, None, headers)
+        data = urllib2.urlopen(req)
+        data = json.load(data)
+        return jsonify(data)
+
+    def post(self):
+        print(request.json)
+        keywd= request.json["search"] #"cro"  #get keyword from json request  request.json["mdCode"]
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+        req = urllib2.Request('http://www.truemd.in/api/v2/medicines.json?search='+keywd, None, headers)
+        data = urllib2.urlopen(req)
+        data = json.load(data)
+        return jsonify(data)
 
 
 class Employees(Resource):
@@ -57,6 +77,8 @@ class Employees_Name(Resource):
         return jsonify(result)
 
 
+
+api.add_resource(KeywordSearch,'/search')
 api.add_resource(Employees, '/employees') # Route_1
 api.add_resource(Tracks, '/tracks') # Route_2
 api.add_resource(Employees_Name, '/employees/<employee_id>') # Route_3
