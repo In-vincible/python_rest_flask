@@ -8,6 +8,20 @@ import urllib2
 db_connect = create_engine('sqlite:///chinook.db')
 app = Flask(__name__)
 api = Api(app)
+GOOGLE = 'AIzaSyBiNfMAYS471tn8hxoNkoaK-dZAfYyU1Gs'
+
+class NearBy(Resource):
+    def post(self):
+        print(request.json)
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+        radius = request.json['radius']
+        lat = request.json['lat']
+        lon = request.json['lon']
+        uri = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?radius="+radius+"&type=pharmacy&key="+GOOGLE+"&location="+lat+","+lon
+        req = urllib2.Request(uri, None, headers)
+        data = urllib2.urlopen(req)
+        data = json.load(data)
+        return jsonify(data)
 
 class Substitute(Resource):
     def post(self):
@@ -94,6 +108,7 @@ api.add_resource(Employees, '/employees') # Route_1
 api.add_resource(Tracks, '/tracks') # Route_2
 api.add_resource(Employees_Name, '/employees/<employee_id>') # Route_3
 api.add_resource(Substitute, '/substitute') 
+api.add_resource(NearBy, '/nearby')
 
 if __name__ == '__main__':
      app.run(debug=True)
