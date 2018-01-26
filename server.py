@@ -13,34 +13,28 @@ GOOGLE = 'AIzaSyBiNfMAYS471tn8hxoNkoaK-dZAfYyU1Gs'
 
 class NearBy(Resource):
     def cleanMe(self,data,meds):
-        answer = []
-        y = []
-        for k in data['results']:
-            yb = {}
-            yb['name'] = k['name']
-            yb['location'] = k['geometry']['location']
-            y.append(yb)
-        for m in meds:
-            rN = random.randint(0,len(y)-1)
-            medData = {}
-            medData['name'] = m['name']
-            medData['medId'] = m['medId']
-            medData['locations'] = y[0:rN]
-            medData['locations'].extend(y[rN:len(y)])
-            answer.append(medData)            
+        clean_shops = []
+        for m in data['results']:
+            clean_shops.append({ "name":m["name"],"location": str(m["geometry"]["location"]["lat"])+","+str(m["geometry"]["location"]["lng"]) })
 
+        for m in range(len(meds)):
+            randi=list(set(random.sample(range(0,len(clean_shops)-1),random.randint( min(3,len(clean_shops)/3) ,len(clean_shops)-1))))
+            randi.sort()
+            meds[m]["avail"] = [clean_shops[i] for i in randi]
+        return meds
 
     def post(self):
         print(request.json)
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-        radius = request.json['radius']
-        lat = request.json['lat']
-        lon = request.json['lon']
+        radius = str(request.json['radius'])
+        lat = str(request.json['lat'])
+        lon = str(request.json['lon'])
+        meds = request.json['meds']
         uri = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?radius="+radius+"&type=pharmacy&key="+GOOGLE+"&location="+lat+","+lon
         req = urllib2.Request(uri, None, headers)
         data = urllib2.urlopen(req)
         data = json.load(data)
-        return jsonify(data)
+        return jsonify( self.cleanMe(data,meds) )
 
 class Substitute(Resource):
     def cleanMe(self,data):
