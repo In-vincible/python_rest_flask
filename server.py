@@ -3,12 +3,14 @@ from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
 import json
+from flask_cors import CORS
 import urllib2
 import random
 
 db_connect = create_engine('sqlite:///chinook.db')
 app = Flask(__name__)
 api = Api(app)
+CORS(app)
 GOOGLE = 'AIzaSyBiNfMAYS471tn8hxoNkoaK-dZAfYyU1Gs'
 
 class NearBy(Resource):
@@ -131,4 +133,4 @@ api.add_resource(Substitute, '/substitute')
 api.add_resource(NearBy, '/nearby')
 
 if __name__ == '__main__':
-     app.run(debug=True)
+     app.run(host="0.0.0.0",debug=True)
